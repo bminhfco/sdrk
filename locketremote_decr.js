@@ -48,7 +48,7 @@ if (ua.includes("Locket")) {
       {
         title: "Locket Gold VIP - @thats.novaa ✨",
         body: "Đã kích hoạt thành công Locket Gold VIP 💛",
-        imageURL: "https://raw.githubusercontent.com/leanhminh2104/locketlam/refs/heads/shadowrocket/assets/welcome_banner.png"
+        imageURL: ""
       }
     ],
     primary_button_title: "Xong",
