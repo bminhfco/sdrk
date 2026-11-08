@@ -6,6 +6,20 @@
 // ============================================================
 
 var ua = (typeof $request !== "undefined" && $request && $request.headers) ? ($request.headers["User-Agent"] || $request.headers["user-agent"] || "") : "";
+
+// [CẦU DAO BẢO VỆ] - Ngắt script, trả lại data gốc nếu là luồng Viewers, Friends, Upload...
+if (typeof $request !== "undefined" && $request && $request.url) {
+    if ($request.url.includes("getMomentViews") || 
+        $request.url.includes("getLatestMomentV2") || 
+        $request.url.includes("friends") || 
+        $request.url.includes("upload") || 
+        $request.url.includes("group") || 
+        $request.url.includes("rollcall")) {
+        return $done({}); 
+    }
+}
+
+// [PHẦN XỬ LÝ DỮ LIỆU CÒN LẠI] - Chỉ chạy đối với luồng cấu hình VIP
 var obj = {};
 try {
     obj = JSON.parse($response.body);
@@ -20,7 +34,7 @@ if (!obj || typeof obj !== "object") {
 obj.state = "UPDATE";
 obj.templateVersion = String(Date.now());
 
-obj.Attention = "Chúc mừng bạn! Vui lòng không bán hoặc chia sẻ cho người khác!";
+obj.Attention = "Locket Gold+ by Minh Hiep";
 obj.entries = obj.entries || {};
 obj.entries.cache_ttl_seconds = "0";
 obj.entries.client_cache_ttl_sec = "0";
