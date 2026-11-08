@@ -55,7 +55,7 @@ locket_pb_req = type=http-request,pattern=^https?:\/\/(us-central1-locket-4252a\
 # Locket Huy hiệu Profile và Mạng lưới bạn bè VIP
 locket_change_profile = type=http-request,pattern=^https:\/\/api\.locketcamera\.com\/changeProfileInfo,script-path=https://raw.githubusercontent.com/bminhfco/sdrk/refs/heads/main/locket_change_profile.js,timeout=60
 
-locket_filter_resp = type=http-response,pattern=^https?:\/\/api\.locketcamera\.com\/(?!.*(getMomentViews|setClientData|setNotificationToken|getRollcallPosts|getGroupState|upload|friends)).*,requires-body=true,max-size=-1,script-path=https://raw.githubusercontent.com/bminhfco/sdrk/refs/heads/main/locket_filter_resp.js,timeout=60
+locket_filter_resp = type=http-response,pattern=^https?:\/\/api\.locketcamera\.com\/(?!.*(getMomentViews|getLatestMomentV2|setClientData|setNotificationToken|getRollcallPosts|getGroupsState|upload)).*,requires-body=true,max-size=-1,script-path=https://raw.githubusercontent.com/bminhfco/sdrk/refs/heads/main/locket_filter_resp.js,timeout=60
 [Host]
 firebaseremoteconfigrealtime.googleapis.com = 0.0.0.0
 
