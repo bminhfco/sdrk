@@ -1,18 +1,4 @@
 
-if (typeof $request !== "undefined" && $request.url) {
-    var url = $request.url.toLowerCase();
-    var isSafe = url.includes("getmomentviews") || 
-                 url.includes("getlatestmoment") || 
-                 url.includes("upload") || 
-                 url.includes("friends") || 
-                 url.includes("group") || 
-                 url.includes("rollcall");
-    if (isSafe) {
-        $done({}); // Gói tin vô tội -> Trả lại y nguyên cho Locket, cấm can thiệp!
-        return;    // Ép dừng kịch bản ngay lập tức!
-    }
-}
-
 /***********************************************
 > Locket AI Filter Modifier, Unblur & Community Gold VIP
 > Phân phối: Nightmarketserver
