@@ -1,18 +1,17 @@
-
-#!name=@thats_novaa - Locket Filter
-#!desc= Locket Gold Filter AI
+#!name=@thats_novaa - Locket Filter (Fixed by Bảo Minh)
+#!desc=Locket Gold Filter AI - Full UI 3D, Photobooth, Fix Viewers & Upload
 #!distributor=Novaa
-#!author=Novaa
+#!author=Novaa & BaoMinh
 #!system=ios
 
 [Rule]
-# Chặn QUIC/UDP cho Locket
+# Chặn QUIC/UDP cho Locket (Ép đi qua TCP để Shadowrocket tiêm thuốc)
 AND,((DOMAIN,firebaseremoteconfig.googleapis.com),(PROTOCOL,UDP)),REJECT
 AND,((DOMAIN,api.revenuecat.com),(PROTOCOL,UDP)),REJECT
 AND,((DOMAIN,api.locketcamera.com),(PROTOCOL,UDP)),REJECT
 AND,((DOMAIN-SUFFIX,locketcamera.com),(PROTOCOL,UDP)),REJECT
 
-# Chặn Sentry
+# Chặn Sentry (Chặn gửi báo cáo lỗi về Locket)
 DOMAIN-SUFFIX,sentry.io,REJECT
 DOMAIN-SUFFIX,ingest.sentry.io,REJECT
 
@@ -32,32 +31,25 @@ DOMAIN-SUFFIX,ingest.sentry.io,REJECT
 ^https?:\/\/firebaseremoteconfig\.googleapis\.com\/v1\/projects\/locket-4252a\/.+ header-del If-Modified-Since
 ^https?:\/\/firebaseremoteconfig\.googleapis\.com\/v1\/projects\/locket-4252a\/.+ header-del x-goog-if-none-match
 
-# Xóa Cache / ETag trên Locket Camera API
-^https?:\/\/api\.locketcamera\.com\/.+ header-del if-none-match
-^https?:\/\/api\.locketcamera\.com\/.+ header-del If-None-Match
-^https?:\/\/api\.locketcamera\.com\/.+ header-del if-modified-since
-^https?:\/\/api\.locketcamera\.com\/.+ header-del If-Modified-Since
-
 [Script]
-# Locket Gold - Xóa Header RevenueCat và Firebase
-deleteHeader_RC = type=http-request,pattern=^https?:\/\/api\.revenuecat\.com\/.+\/(receipts|subscribers),script-path=https://raw.githubusercontent.com/NightmarketServer/Module-Shadowrocket-NMS/refs/heads/main/Locket%20Filter%20AI/js/deleteHeader_Firebase.js,timeout=60
+# 1. Xóa Header ETag/Cache bằng Script cho RevenueCat & Firebase
+deleteHeader_RC = type=http-request,pattern=^https?:\/\/api\.revenuecat\.com\/v1\/(receipts$|subscribers\/[^/]+$),script-path=https://raw.githubusercontent.com/bminhfco/sdrk/refs/heads/main/deleteHeader_RC.js,timeout=60
+deleteHeader_Firebase = type=http-request,pattern=^https?:\/\/firebaseremoteconfig\.googleapis\.com\/v1\/projects\/locket-4252a\/.+,script-path=https://raw.githubusercontent.com/bminhfco/sdrk/refs/heads/main/deleteHeader_Firebase.js,timeout=60
 
-deleteHeader_Firebase = type=http-request,pattern=^https?:\/\/firebaseremoteconfig\.googleapis\.com\/v1\/projects\/locket-4252a\/.+,script-path=https://raw.githubusercontent.com/NightmarketServer/Module-Shadowrocket-NMS/refs/heads/main/Locket%20Filter%20AI/js/deleteHeader_RC.js,timeout=60
+# 2. Mở khóa Locket Gold trên RevenueCat
+locket_gold_rc = type=http-response,pattern=^https?:\/\/api\.revenuecat\.com\/v1\/(receipts$|subscribers\/[^/]+$),requires-body=true,max-size=-1,script-path=https://raw.githubusercontent.com/bminhfco/sdrk/refs/heads/main/evenuecat.js,timeout=60
 
-# Locket Gold - Kích hoạt quyền thuê bao và tính năng 45s
-revenuecat = type=http-response,pattern=^https?:\/\/api\.revenuecat\.com\/.+\/(receipts|subscribers),script-path=https://raw.githubusercontent.com/bminhfco/sdrk/refs/heads/main/evenuecat.js,requires-body=true,max-size=-1,timeout=60
+# 3. Nạp UI Filters 3D, Photobooth, Widget & Captions trên Firebase
+locket_rc = type=http-response,pattern=^https?:\/\/firebaseremoteconfig\.googleapis\.com\/v1\/projects\/locket-4252a\/.+,requires-body=true,max-size=-1,script-path=https://raw.githubusercontent.com/bminhfco/sdrk/refs/heads/main/locketfix.js,timeout=60
 
-locket_rc = type=http-response,pattern=^https:\/\/firebaseremoteconfig\.googleapis\.com\/v1\/projects\/locket-4252a\/.+,script-path=https://raw.githubusercontent.com/bminhfco/sdrk/refs/heads/main/locketfix.js,requires-body=true,max-size=-1,timeout=60
+# 4. Xử lý chụp AI Filter & Photobooth 4 ô (Chỉ bắt đúng /generateFilteredImage)
+locket_pb_req = type=http-request,pattern=^https?:\/\/api\.locketcamera\.com\/generateFilteredImage.*,requires-body=true,max-size=-1,script-path=https://raw.githubusercontent.com/bminhfco/sdrk/refs/heads/main/locket_pb_req.js,timeout=60
 
-# Locket Photobooth Engine
-locket_pb_req = type=http-request,pattern=^https?:\/\/(us-central1-locket-4252a\.cloudfunctions\.net|api\.locketcamera\.com)\/generateFilteredImage,script-path=https://raw.githubusercontent.com/bminhfco/sdrk/refs/heads/main/locket_pb_req.js,requires-body=true,max-size=-1,timeout=60
+# 5. Đổi Huy hiệu vàng Profile (Chỉ bắt đúng /changeProfileInfo)
+locket_change_profile = type=http-request,pattern=^https?:\/\/api\.locketcamera\.com\/changeProfileInfo.*,script-path=https://raw.githubusercontent.com/bminhfco/sdrk/refs/heads/main/locket_change_profile.js,timeout=60
 
-# Locket Huy hiệu Profile và Mạng lưới bạn bè VIP
-locket_change_profile = type=http-request,pattern=^https:\/\/api\.locketcamera\.com\/changeProfileInfo,script-path=https://raw.githubusercontent.com/bminhfco/sdrk/refs/heads/main/locket_change_profile.js,timeout=60
-
-locket_filter_resp = type=http-response,pattern=^https?:\/\/api\.locketcamera\.com\/(?!.*(getMomentViews|getLatestMomentV2|setClientData|setNotificationToken|getRollcallPosts|getGroupsState|upload)).*,requires-body=true,max-size=-1,script-path=https://raw.githubusercontent.com/bminhfco/sdrk/refs/heads/main/locket_filter_resp.js,timeout=60
-[Host]
-firebaseremoteconfigrealtime.googleapis.com = 0.0.0.0
+# 6. Cấp huy hiệu Gold VIP (Né hoàn toàn getMomentViews, getLatestMomentV2 và Upload)
+locket_filter_resp = type=http-response,pattern=^https?:\/\/api\.locketcamera\.com\/(changeProfileInfo|getUsers|getFriends|fetchFriends).*,requires-body=true,max-size=-1,script-path=https://raw.githubusercontent.com/bminhfco/sdrk/refs/heads/main/locket_filter_resp.js,timeout=60
 
 [MITM]
-hostname = %APPEND% api.revenuecat.com, firebaseremoteconfig.googleapis.com, api.locketcamera.com, *.locketcamera.com, us-central1-locket-4252a.cloudfunctions.net
+hostname = %APPEND% api.revenuecat.com, firebaseremoteconfig.googleapis.com, api.locketcamera.com
