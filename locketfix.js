@@ -4774,7 +4774,7 @@ Object.assign(obj.entries, {
     camera_microphone_enabled: "true",
     audio_session_deactivation_enabled: "true",
     zoom_enabled: "true",
-    upload_main: "false",
+    upload_main: "true",
     upload_main_image_quality: "1.0",
     upload_main_image_size: "1440",
     upload_thumbnail_image_quality: "1.0",
@@ -4785,7 +4785,7 @@ Object.assign(obj.entries, {
 // ============================================================
 Object.assign(obj.entries, {
     max_friends_count: "999999",
-    friend_limit_mode: "disabled",
+    friend_limit_mode: "0",
     soft_friend_limit_threshold_count: "999999",
     show_friend_limit_on_cam: "false",
     signup_max_friends_count: "999999",
@@ -5011,6 +5011,7 @@ Object.assign(obj.entries, {
 // 7. HỆ THỐNG CDN, CACHE & STORAGE ĐẦY ĐỦ
 // ============================================================
 Object.assign(obj.entries, {
+    cdn_domain_replacements: JSON.stringify({ "firebasestorage.googleapis.com": "cdn.locketcamera.com" }), cdn_domain_replacements_video: "true", 
     storage_bucket: "gs://locket-img",
     storage_bucket_video: "gs://locket-video",
     image_cache_max_age_sec: "157680000",
@@ -5024,7 +5025,7 @@ Object.assign(obj.entries, {
     efficient_history_cache_invalidation: "true",
     timestamp_based_history_fetches: "true",
     get_latest_moment_v2: "true",
-    fetch_users_from_cloud_function: "false",
+    fetch_users_from_cloud_function: "true",
     refresh_interval: "60",
     firestore_refresh_v2: "true",
     firestore_refresh_v3: "true",
